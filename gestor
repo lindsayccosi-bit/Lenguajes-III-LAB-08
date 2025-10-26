@@ -1,0 +1,432 @@
+package gestor;
+
+import modelos.Cliente;
+import util.Seguridad;
+import java.util.*;
+
+public class GestorCliente {
+    private ArrayList<Cliente> lista = new ArrayList<>();
+
+    public void cargarDatos(ArrayList<Cliente> clientes) {
+        this.lista = clientes;
+    }
+
+    // === CONSULTAR ===
+    public void consultar(String campoMostrar, String campoCondicion, String valorCondicion,
+                          boolean ascendente, String campoOrden, int limite) {
+        System.out.println("\n=== CONSULTA DE CLIENTES ===");
+        ArrayList<Cliente> filtrados = new ArrayList<>();
+
+        for (Cliente c : lista) { // recorre clientes de la lista Cliente
+            boolean cumple = true;  // Se crea variable cumple como default siendo true
+            if (campoCondicion != null && valorCondicion != null) { //
+                switch (campoCondicion.toLowerCase()) { // todo en minusculas
+                    case "nombre":
+                    	// Busca coincidencias parciales en el nombre.
+                    	//Ejemplo: si el nombre del cliente es "Alejandra" y buscas "ale", coincide.
+                        cumple = c.getNombre().toLowerCase().contains(valorCondicion.toLowerCase());
+                        break;
+                    case "email":
+                        cumple = c.getEmail().toLowerCase().contains(valorCondicion.toLowerCase());
+                        break;
+                    case "id":
+                    	// como es un numero busca que el id sea igual al valor de la condicion
+                        cumple = String.valueOf(c.getId_cliente()).equals(valorCondicion);
+                        break;
+                }
+            }
+            if (cumple) filtrados.add(c);
+        }
+
+        Comparator<Cliente> comp = null;
+        switch (campoOrden.toLowerCase()) {
+            case "nombre": 
+            	// compara los clientes usando el valor que devuelve getNombre()”.
+            	// si se ncesita comparar dos clientes, llama automáticamente a su método getNombre() y usa eso para comparar.
+            	comp = Comparator.comparing(Cliente::getNombre); 
+            	break;
+            case "email": 
+            	comp = Comparator.comparing(Cliente::getEmail); // Compara clientes por su email
+            	break;
+            case "id": 
+            	comp = Comparator.comparingInt(Cliente::getId_cliente); 
+                break;
+        }
+        if (comp != null)
+            Collections.sort(filtrados, ascendente ? comp : comp.reversed());
+
+        int cantidad = Math.min(limite, filtrados.size());
+        for (int i = 0; i < cantidad; i++) {
+            Cliente c = filtrados.get(i);
+            if (campoMostrar.equalsIgnoreCase("todo")) // caso sea igual sin importar mayusculas
+                System.out.println(c.getId_cliente() + " | " + c.getNombre() + " | " + c.getEmail());
+            else if (campoMostrar.equalsIgnoreCase("nombre")) System.out.println(c.getNombre());
+            else if (campoMostrar.equalsIgnoreCase("email")) System.out.println(c.getEmail());
+            else if (campoMostrar.equalsIgnoreCase("id")) System.out.println(c.getId_cliente());
+        }
+    }
+
+    // === AGREGAR ===
+    public void agregar(Cliente nuevo) {
+        System.out.println("\n=== AGREGAR CLIENTE ===");
+        if (Seguridad.confirmarOperacion()) {  // confirmarOperacion -- ingreso de clave
+            lista.add(nuevo);
+            System.out.println("Cliente agregado correctamente.");
+        } else {
+            System.out.println("Operación cancelada. No se agregó el cliente.");
+        }
+    }
+
+    // === ACTUALIZAR ===
+    public void actualizarEmail(int id, String nuevoEmail) {
+        System.out.println("\n=== ACTUALIZAR EMAIL ===");
+        if (Seguridad.confirmarOperacion()) {
+            for (Cliente c : lista) {
+                if (c.getId_cliente() == id) {
+                    c.setEmail(nuevoEmail);
+                    System.out.println("Email actualizado correctamente.");
+                    return;
+                }
+            }
+            System.out.println("Cliente no encontrado.");
+        } else {
+            System.out.println("Operación cancelada.");
+        }
+    }
+
+    // === ELIMINAR ===
+    public void eliminar(int id) {
+        System.out.println("\n=== ELIMINAR CLIENTE ===");
+        if (Seguridad.confirmarOperacion()) {
+            boolean eliminado = lista.removeIf(c -> c.getId_cliente() == id);
+            if (eliminado) System.out.println("Cliente eliminado correctamente.");
+            else System.out.println("No se encontró el cliente.");
+        } else {
+            System.out.println("Operación cancelada.");
+        }
+    }
+}
+
+
+
+
+package gestor;
+
+import modelos.DetallePedido;
+import util.Seguridad;
+import java.util.*;
+
+public class GestorDetallePedido {
+    private ArrayList<DetallePedido> lista = new ArrayList<>();
+
+    public void cargarDatos(ArrayList<DetallePedido> detalles) {
+        this.lista = detalles;
+    }
+
+    public void agregarDetalle(DetallePedido nuevo) {
+        System.out.println("\n=== AGREGAR DETALLE DE PEDIDO ===");
+        if (!Seguridad.confirmarOperacion()) {
+            System.out.println("Operación cancelada. No se agregó el detalle.");
+            return;
+        }
+        lista.add(nuevo);
+        System.out.println("Detalle agregado correctamente.");
+    }
+
+    public void eliminarDetalle(int idDetalle) {
+        System.out.println("\n=== ELIMINAR DETALLE DE PEDIDO ===");
+        if (!Seguridad.confirmarOperacion()) {
+            System.out.println("Operación cancelada. No se eliminó ningún detalle.");
+            return;
+        }
+        boolean eliminado = lista.removeIf(d -> d.getIdDetallePedido() == idDetalle);
+        if (eliminado)
+            System.out.println("Detalle eliminado correctamente.");
+        else
+            System.out.println("No se encontró el detalle con ID: " + idDetalle);
+    }
+
+    public void actualizarCantidad(int idDetalle, int nuevaCantidad) {
+        System.out.println("\n=== ACTUALIZAR CANTIDAD DE DETALLE ===");
+        if (!Seguridad.confirmarOperacion()) {
+            System.out.println("Operación cancelada. No se realizaron cambios.");
+            return;
+        }
+        for (DetallePedido d : lista) {
+            if (d.getIdDetallePedido() == idDetalle) {
+                d.setCantidad(nuevaCantidad);
+                System.out.println("Cantidad actualizada correctamente.");
+                return;
+            }
+        }
+        System.out.println("Detalle no encontrado.");
+    }
+
+    public void consultar(String campoMostrar, String campoCondicion, String valorCondicion,
+                          boolean ascendente, String campoOrden, int limite) {
+
+        System.out.println("\n=== CONSULTA DE DETALLES DE PEDIDO ===");
+
+        ArrayList<DetallePedido> filtrados = new ArrayList<>();
+        for (DetallePedido d : lista) {
+            boolean cumple = true;
+
+            if (campoCondicion != null && valorCondicion != null) {
+                switch (campoCondicion.toLowerCase()) {
+                    case "idpedido":
+                        cumple = d.getIdPedido() == Integer.parseInt(valorCondicion);
+                        break;
+                    case "idproducto":
+                        cumple = d.getIdProducto() == Integer.parseInt(valorCondicion);
+                        break;
+                }
+            }
+
+            if (cumple) filtrados.add(d);
+        }
+
+        Comparator<DetallePedido> comp = null;
+        switch (campoOrden.toLowerCase()) {
+            case "total": comp = Comparator.comparingDouble(DetallePedido::getTotalPed); break;
+            case "cantidad": comp = Comparator.comparingInt(DetallePedido::getCantidad); break;
+            case "id": comp = Comparator.comparingInt(DetallePedido::getIdDetallePedido); break;
+        }
+
+        if (comp != null) {
+        	// filtrados -- aquellos que pasaron el filtro, comp-- comparador que define como se comparan 2 clien..
+            if (ascendente) // ascendte es tru se ordwna de menor a mayor
+            	Collections.sort(filtrados, comp); // ordena los filtrados comparadolos entre ellos de m a may
+            else 
+            	Collections.sort(filtrados, comp.reversed());
+        }
+
+        int cantidad = Math.min(limite, filtrados.size());
+        for (int i = 0; i < cantidad; i++) {
+            DetallePedido d = filtrados.get(i);
+            switch (campoMostrar.toLowerCase()) {
+                case "total": System.out.println("S/." + d.getTotalPed()); break;
+                case "cantidad": System.out.println(d.getCantidad()); break;
+                case "id": System.out.println(d.getIdDetallePedido()); break;
+                case "todo":
+                default:
+                    System.out.println("Detalle #" + d.getIdDetallePedido() +
+                                       " | Pedido ID: " + d.getIdPedido() +
+                                       " | Producto ID: " + d.getIdProducto() +
+                                       " | Cantidad: " + d.getCantidad() +
+                                       " | Total: S/." + d.getTotalPed());
+            }
+        }
+    }
+}
+
+
+
+
+
+
+package gestor;
+
+import modelos.Pedido;
+import util.Seguridad;
+import java.util.*;
+
+public class GestorPedido {
+    private ArrayList<Pedido> lista = new ArrayList<>();
+
+    public void cargarDatos(ArrayList<Pedido> pedidos) {
+        this.lista = pedidos;
+    }
+
+    public void agregarPedido(Pedido nuevo) {
+        System.out.println("\n=== AGREGAR PEDIDO ===");
+        if (!Seguridad.confirmarOperacion()) {
+            System.out.println("Operación cancelada. No se agregó el pedido.");
+            return;
+        }
+        lista.add(nuevo);
+        System.out.println("Pedido agregado correctamente.");
+    }
+
+    public void eliminarPedido(int idPedido) {
+        System.out.println("\n=== ELIMINAR PEDIDO ===");
+        if (!Seguridad.confirmarOperacion()) {
+            System.out.println("Operación cancelada. No se eliminó ningún pedido.");
+            return;
+        }
+        boolean eliminado = lista.removeIf(p -> p.getIdPedido() == idPedido);
+        if (eliminado)
+            System.out.println("Pedido eliminado correctamente.");
+        else
+            System.out.println("No se encontró el pedido con ID: " + idPedido);
+    }
+
+    public void actualizarEstado(int idPedido, String nuevoEstado) {
+        System.out.println("\n=== ACTUALIZAR ESTADO DE PEDIDO ===");
+        if (!Seguridad.confirmarOperacion()) {
+            System.out.println("Operación cancelada. No se realizaron cambios.");
+            return;
+        }
+        for (Pedido p : lista) {
+            if (p.getIdPedido() == idPedido) {
+                p.setEstado(nuevoEstado);
+                System.out.println("Estado actualizado correctamente.");
+                return;
+            }
+        }
+        System.out.println("Pedido no encontrado.");
+    }
+
+    public void consultar(String campoMostrar, String campoCondicion, String valorCondicion,
+                          boolean ascendente, String campoOrden, int limite) {
+
+        System.out.println("\n=== CONSULTA DE PEDIDOS ===");
+
+        ArrayList<Pedido> filtrados = new ArrayList<>();
+        for (Pedido p : lista) {
+            boolean cumple = true;
+
+            if (campoCondicion != null && valorCondicion != null) {
+                switch (campoCondicion.toLowerCase()) {
+                    case "estado":
+                        cumple = p.getEstado().toLowerCase().contains(valorCondicion.toLowerCase());
+                        break;
+                    case "idcliente":
+                        cumple = p.getIdCliente() == Integer.parseInt(valorCondicion);
+                        break;
+                }
+            }
+
+            if (cumple) filtrados.add(p);
+        }
+
+        Comparator<Pedido> comp = null;
+        switch (campoOrden.toLowerCase()) {
+            case "fecha": comp = Comparator.comparing(Pedido::getFechaPedido); break;
+            case "estado": comp = Comparator.comparing(Pedido::getEstado); break;
+            case "id": comp = Comparator.comparingInt(Pedido::getIdPedido); break;
+        }
+
+        if (comp != null) {
+            if (ascendente) Collections.sort(filtrados, comp);
+            else Collections.sort(filtrados, comp.reversed());
+        }
+
+        int cantidad = Math.min(limite, filtrados.size());
+        for (int i = 0; i < cantidad; i++) {
+            Pedido p = filtrados.get(i);
+            switch (campoMostrar.toLowerCase()) {
+                case "estado": System.out.println(p.getEstado()); break;
+                case "fecha": System.out.println(p.getFechaPedido()); break;
+                case "id": System.out.println(p.getIdPedido()); break;
+                case "todo":
+                default:
+                    System.out.println(p.getIdPedido() + " | " + p.getFechaPedido() +
+                                       " | " + p.getEstado() + " | Cliente ID: " + p.getIdCliente());
+            }
+        }
+    }
+}
+
+
+
+
+
+package gestor;
+
+import modelos.Producto;
+import util.Seguridad;
+import java.util.*;
+
+public class GestorProducto {
+    private ArrayList<Producto> lista = new ArrayList<>();
+
+    public void cargarDatos(ArrayList<Producto> productos) {
+        this.lista = productos;
+    }
+
+    public void consultar(String campoMostrar, String campoCondicion, String valorCondicion,
+                          boolean ascendente, String campoOrden, int limite) {
+        System.out.println("\n=== CONSULTA DE PRODUCTOS ===");
+        ArrayList<Producto> filtrados = new ArrayList<>();
+
+        for (Producto p : lista) {
+            boolean cumple = true;
+            if (campoCondicion != null && valorCondicion != null) {
+                switch (campoCondicion.toLowerCase()) {
+                    case "nombre":
+                        cumple = p.getNombre().toLowerCase().contains(valorCondicion.toLowerCase());
+                        break;
+                    case "id":
+                        cumple = String.valueOf(p.getId_producto()).equals(valorCondicion);
+                        break;
+                }
+            }
+            if (cumple) filtrados.add(p);
+        }
+
+        Comparator<Producto> comp = null;
+        switch (campoOrden.toLowerCase()) {
+            case "nombre": comp = Comparator.comparing(Producto::getNombre); break;
+            case "precio": comp = Comparator.comparingDouble(Producto::getPrecio); break;
+            case "id": comp = Comparator.comparingInt(Producto::getId_producto); break;
+        }
+        if (comp != null)
+            Collections.sort(filtrados, ascendente ? comp : comp.reversed());
+
+        int cantidad = Math.min(limite, filtrados.size());
+        for (int i = 0; i < cantidad; i++) {
+            Producto p = filtrados.get(i);
+            if (campoMostrar.equalsIgnoreCase("todo"))
+                System.out.println(p.getId_producto() + " | " + p.getNombre() + " | S/." + p.getPrecio() + " | Stock: " + p.getStock());
+            else if (campoMostrar.equalsIgnoreCase("nombre")) System.out.println(p.getNombre());
+            else if (campoMostrar.equalsIgnoreCase("precio")) System.out.println(p.getPrecio());
+            else if (campoMostrar.equalsIgnoreCase("id")) System.out.println(p.getId_producto());
+        }
+    }
+
+    // === AGREGAR ===
+    public void agregar(Producto nuevo) {
+        System.out.println("\n=== AGREGAR PRODUCTO ===");
+        if (Seguridad.confirmarOperacion()) {
+            lista.add(nuevo);
+            System.out.println("Producto agregado correctamente.");
+        } else {
+            System.out.println("Operación cancelada.");
+        }
+    }
+
+    // === ACTUALIZAR ===
+    public void actualizarPrecio(int id, double nuevoPrecio) {
+        System.out.println("\n=== ACTUALIZAR PRECIO ===");
+        if (Seguridad.confirmarOperacion()) {
+            for (Producto p : lista) {
+                if (p.getId_producto() == id) {
+                    p.setPrecio(nuevoPrecio);
+                    System.out.println("Precio actualizado correctamente.");
+                    return;
+                }
+            }
+            System.out.println("Producto no encontrado.");
+        } else {
+            System.out.println("Operación cancelada.");
+        }
+    }
+
+    // === ELIMINAR ===
+    public void eliminar(int id) {
+        System.out.println("\n=== ELIMINAR PRODUCTO ===");
+        if (Seguridad.confirmarOperacion()) {
+            boolean eliminado = lista.removeIf(p -> p.getId_producto() == id);
+            if (eliminado) System.out.println("Producto eliminado correctamente.");
+            else System.out.println("No se encontró el producto.");
+        } else {
+            System.out.println("Operación cancelada.");
+        }
+    }
+}
+
+
+
+
+
+
