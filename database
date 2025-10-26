@@ -1,0 +1,85 @@
+package database;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+public class Conexion {
+    private static final String URL = "jdbc:sqlite:skz_datebase.db";
+
+    public static Connection conectar() {
+        try {
+            return DriverManager.getConnection(URL);
+        } catch (Exception e) {
+            System.out.println("Error de conexión: " + e.getMessage());
+            return null;
+        }
+    }
+}
+
+
+
+package database;
+import java.sql.Connection;
+import java.sql.Statement;
+
+public class inicializarBD {
+
+    public static void crearTablas() {
+        String sqlCliente = """
+            CREATE TABLE IF NOT EXISTS Cliente (
+                id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT NOT NULL,
+                email TEXT NOT NULL,
+                contrasenia TEXT NOT NULL
+            );
+        """;
+
+        String sqlProducto = """
+            CREATE TABLE IF NOT EXISTS Producto (
+                id_producto INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT NOT NULL,
+                descripcion TEXT,
+                precio REAL NOT NULL,
+                stock INTEGER NOT NULL
+            );
+        """;
+
+        String sqlPedido = """
+        	    CREATE TABLE IF NOT EXISTS Pedido (
+        	        id_pedido INTEGER PRIMARY KEY AUTOINCREMENT,
+        	        fecha_pedido TEXT NOT NULL,
+        	        estado TEXT NOT NULL,
+        	        id_cliente INTEGER NOT NULL,
+        	        FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente)
+        	    );
+        	""";
+
+        String sqlDetallePedido = """
+            CREATE TABLE IF NOT EXISTS Detalle_pedido (
+                id_detalle INTEGER PRIMARY KEY AUTOINCREMENT,
+                id_pedido INTEGER NOT NULL,
+                id_producto INTEGER NOT NULL,
+                cantidad INTEGER NOT NULL,
+                total REAL NOT NULL,
+                FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido),
+                FOREIGN KEY (id_producto) REFERENCES Producto(id_producto)
+            );
+        """;
+
+        try (Connection conn = Conexion.conectar();
+             Statement stmt = conn.createStatement()) {
+
+            stmt.execute(sqlCliente);
+            stmt.execute(sqlProducto);
+            stmt.execute(sqlPedido);
+            stmt.execute(sqlDetallePedido);
+
+            System.out.println("Tablas verificadas o creadas correctamente.");
+
+        } catch (Exception e) {
+            System.out.println("Error al crear las tablas: " + e.getMessage());
+        }
+    }
+}
+
+
