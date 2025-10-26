@@ -1,0 +1,253 @@
+package modelos;
+public class Cliente {
+    private int id_cliente;
+    private String nombre;
+    private String email;
+    private String contrasenia;
+
+    public Cliente() {}
+
+    public Cliente(int id_cliente, String nombre, String email, String contrasenia) {
+        this.id_cliente = id_cliente;
+        this.nombre = nombre;
+        this.email = email;
+        this.contrasenia = contrasenia;
+    }
+
+    // Getters y Setters
+    public int getId_cliente() { 
+    	return id_cliente; 
+    }
+    
+
+    public String getNombre() { 
+    	return nombre; 
+    }
+    
+
+    public String getEmail() { 
+    	return email; 
+    }
+    
+    public String getContrasenia() { 
+    	return contrasenia; 
+    }
+    
+    
+    public void setNombre(String nombre) { 
+    	this.nombre = nombre; 
+    }
+    
+    public void setEmail(String email) { 
+    	this.email = email; 
+    }
+
+    public void setId_cliente(int id_cliente) { 
+    	this.id_cliente = id_cliente; 
+    }
+    
+    
+    public void setContrasenia(String contrasenia) { 
+    	this.contrasenia = contrasenia; 
+    	}
+
+    @Override
+    public String toString() {
+        return "Cliente [ID=" + id_cliente + ", Nombre=" + nombre + ", Email=" + email + "]";
+    }
+}
+
+
+package modelos;
+
+public class DetallePedido {
+    private int idDetallePedido;
+    private int idPedido;
+    private int idProducto;
+    private int cantidad;
+    private double totalPed;
+
+    public DetallePedido() {}
+
+    public DetallePedido(int idDetallePedido, int idPedido, int idProducto, int cantidad, double totalPed) {
+        this.idDetallePedido = idDetallePedido;
+        this.idPedido = idPedido;
+        this.idProducto = idProducto;
+        this.cantidad = cantidad;
+        this.totalPed = totalPed;
+    }
+
+    public int getIdDetallePedido() {
+        return idDetallePedido;
+    }
+
+    public int getIdPedido() {
+        return idPedido;
+    }
+
+
+    public int getIdProducto() {
+        return idProducto;
+    }
+
+    public int getCantidad() {
+        return cantidad;
+    }
+ 
+    public double getTotalPed() {
+        return totalPed;
+    }
+
+    
+    public void setIdDetallePedido(int idDetallePedido) {
+        this.idDetallePedido = idDetallePedido;
+    }
+    
+    public void setIdPedido(int idPedido) {
+        this.idPedido = idPedido;
+    }
+    
+    public void setIdProducto(int idProducto) {
+        this.idProducto = idProducto;
+    }
+    
+  
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public void setTotalPed(double totalPed) {
+        this.totalPed = totalPed;
+    }
+
+    @Override
+    public String toString() {
+        return idDetallePedido + " - Pedido: " + idPedido + " - Producto: " + idProducto + " - Cant: " + cantidad + " - Total: " + totalPed;
+    }
+}
+
+
+
+
+
+
+package modelos;
+public class Pedido {
+    private int idPedido;
+    private String fechaPedido;
+    private String estado;
+    private int idCliente;
+
+    public Pedido() {}
+
+    public Pedido(int idPedido, String fechaPedido, String estado, int idCliente) {
+        this.idPedido = idPedido;
+        this.fechaPedido = fechaPedido;
+        this.estado = estado;
+        this.idCliente = idCliente;
+    }
+
+    public int getIdPedido() {
+        return idPedido;
+    }
+
+    public void setIdPedido(int idPedido) {
+        this.idPedido = idPedido;
+    }
+
+    public String getFechaPedido() {
+        return fechaPedido;
+    }
+
+    public void setFechaPedido(String fechaPedido) {
+        this.fechaPedido = fechaPedido;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public int getIdCliente() {
+        return idCliente;
+    }
+
+    public void setIdCliente(int idCliente) {
+        this.idCliente = idCliente;
+    }
+
+    @Override
+    public String toString() {
+        return idPedido + " - " + fechaPedido + " - " + estado;
+    }
+}
+
+
+
+package modelos;
+
+public class Producto {
+    private int id_producto;
+    private String nombre;
+    private String descripcion;
+    private double precio;
+    private int stock;
+
+    public Producto() {}
+
+    public Producto(int id_producto, String nombre, String descripcion, double precio, int stock) {
+        this.id_producto = id_producto;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.precio = precio;
+        this.stock = stock;
+    }
+
+    // Getters y setters
+    public int getId_producto() {
+    	return id_producto;
+    }
+    public void setId_producto(int id_producto) { 
+    	this.id_producto = id_producto;
+    }
+
+    public String getNombre() {
+    	return nombre;
+    }
+    public void setNombre(String nombre) {
+    	this.nombre = nombre;
+    }
+
+    public String getDescripcion() {
+    	return descripcion;
+    }
+    public void setDescripcion(String descripcion) {
+    	this.descripcion = descripcion;
+    }
+
+    public double getPrecio() {
+    	return precio;
+    }
+    
+    public void setPrecio(double precio) {
+    	this.precio = precio;
+    }
+
+    public int getStock() { return stock; }
+    public void setStock(int stock) { this.stock = stock; }
+
+    @Override
+    public String toString() {
+        return "Producto [ID=" + id_producto + ", Nombre=" + nombre +
+                ", Precio=" + precio + ", Stock=" + stock + "]";
+    }
+}
+
+    
+
+
+
+  
