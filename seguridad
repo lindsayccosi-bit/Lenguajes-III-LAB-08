@@ -1,0 +1,19 @@
+package util;
+import java.util.Scanner;
+
+public class Seguridad {
+    private static final String CLAVE = "skz2025"; // clave a utilizar
+
+    public static boolean confirmarOperacion() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Ingrese la clave para confirmar: ");
+        String clave = sc.nextLine();
+        if (clave.equals(CLAVE)) {
+            System.out.println("Clave correcta. Operación confirmada.");
+            return true;
+        } else {
+            System.out.println("Clave incorrecta. Operación cancelada.");
+            return false;
+        }
+    }
+}
