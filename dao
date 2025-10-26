@@ -1,0 +1,420 @@
+package dao;
+import database.Conexion;
+import modelos.Cliente;
+import util.Seguridad;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ClienteDAO {
+
+    // Insertar cliente
+    public void insertar(Cliente c) {
+        if (!Seguridad.confirmarOperacion()) return;
+
+        String sql = "INSERT INTO Cliente(nombre, email, contrasenia) VALUES (?, ?, ?)";
+        try (Connection conn = Conexion.conectar()) { // abre una conexión con la base de datos SQLite.
+        	conn.setAutoCommit(false); // Controla si los cambios se aplican o no en base a si la op fue exitosa o no
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) { // Se prepara el comando SQL que SE quiere ejecutar
+                stmt.setString(1, c.getNombre()); // asigna valores a los parametros prepareS...
+                stmt.setString(2, c.getEmail()); // primer argumento (2) indica el orden del parametro
+                stmt.setString(3, c.getContrasenia()); // segundo argumento c.ge... es el valor que se inserta
+                stmt.executeUpdate(); // Se ejecuta la operacion ya sea INSERT o UPDATE
+                conn.commit(); // Se confirma los cambios y se guardan en la base de datos
+                System.out.println("Cliente agregado correctamente.");
+            } catch (SQLException e) {
+                conn.rollback(); // Revierte los cambios que se hicieron y queda como estaba antes
+                System.out.println("Error al insertar cliente. Cambios revertidos.");
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Error general: " + e.getMessage());
+        }
+    }
+
+    // Listar clientes
+    public List<Cliente> listar() {
+        List<Cliente> lista = new ArrayList<>();
+        String sql = "SELECT * FROM Cliente";
+        try (Connection conn = Conexion.conectar();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Cliente c = new Cliente(
+                    rs.getInt("id_cliente"),
+                    rs.getString("nombre"),
+                    rs.getString("email"),
+                    rs.getString("contrasenia")
+                );
+                lista.add(c);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al listar clientes: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    // Actualizar cliente
+    public void actualizar(Cliente c) {
+        if (!Seguridad.confirmarOperacion()) return;
+
+        String sql = "UPDATE Cliente SET nombre=?, email=?, contrasenia=? WHERE id_cliente=?";
+        try (Connection conn = Conexion.conectar()) {
+            conn.setAutoCommit(false); // Por defecto sql guarda los cambios, pero aqui controla si se aplican los cambios o no
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, c.getNombre());
+                stmt.setString(2, c.getEmail());
+                stmt.setString(3, c.getContrasenia());
+                stmt.setInt(4, c.getId_cliente());
+                stmt.executeUpdate();
+                conn.commit();  // Se confirma y guardan los cambios
+                System.out.println("Cliente actualizado correctamente.");
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println("Error al actualizar cliente. Cambios revertidos.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error general: " + e.getMessage());
+        }
+    }
+
+    // Eliminar cliente
+    public void eliminar(int id) {
+        if (!Seguridad.confirmarOperacion()) return;
+
+        String sql = "DELETE FROM Cliente WHERE id_cliente=?";
+        try (Connection conn = Conexion.conectar()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+                conn.commit();
+                System.out.println("Cliente eliminado correctamente.");
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println("Error al eliminar cliente. Cambios revertidos.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error general: " + e.getMessage());
+        }
+    }
+}
+
+
+
+package dao;
+
+import database.Conexion;
+import modelos.DetallePedido;
+import util.Seguridad;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class DetallePedidoDAO {
+
+    // Insertar detalle
+    public void insertar(DetallePedido d) {
+        if (!Seguridad.confirmarOperacion()) return;
+
+        String sql = "INSERT INTO Detalle_pedido(id_pedido, id_producto, cantidad, total_ped) VALUES (?, ?, ?, ?)";
+        try (Connection conn = Conexion.conectar()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, d.getIdPedido());
+                stmt.setInt(2, d.getIdProducto());
+                stmt.setInt(3, d.getCantidad());
+                stmt.setDouble(4, d.getTotalPed());
+                stmt.executeUpdate();
+                conn.commit();
+                System.out.println("Detalle agregado correctamente.");
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println("Error al insertar detalle. Cambios revertidos.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error general: " + e.getMessage());
+        }
+    }
+
+    // Listar detalles
+    public List<DetallePedido> listar() {
+        List<DetallePedido> lista = new ArrayList<>();
+        String sql = "SELECT * FROM Detalle_pedido";
+        try (Connection conn = Conexion.conectar();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                DetallePedido d = new DetallePedido(
+                    rs.getInt("id_detallpedido"),
+                    rs.getInt("id_pedido"),
+                    rs.getInt("id_producto"),
+                    rs.getInt("cantidad"),
+                    rs.getDouble("total_ped")
+                );
+                lista.add(d);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al listar detalles: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    // Actualizar detalle
+    public void actualizar(DetallePedido d) {
+        if (!Seguridad.confirmarOperacion()) return;
+
+        String sql = "UPDATE Detalle_pedido SET id_pedido=?, id_producto=?, cantidad=?, total_ped=? WHERE id_detallpedido=?";
+        try (Connection conn = Conexion.conectar()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, d.getIdPedido());
+                stmt.setInt(2, d.getIdProducto());
+                stmt.setInt(3, d.getCantidad());
+                stmt.setDouble(4, d.getTotalPed());
+                stmt.setInt(5, d.getIdDetallePedido());
+                stmt.executeUpdate();
+                conn.commit();
+                System.out.println("Detalle actualizado correctamente.");
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println("Error al actualizar detalle. Cambios revertidos.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error general: " + e.getMessage());
+        }
+    }
+
+    // Eliminar detalle
+    public void eliminar(int id) {
+        if (!Seguridad.confirmarOperacion()) return;
+
+        String sql = "DELETE FROM Detalle_pedido WHERE id_detallpedido=?";
+        try (Connection conn = Conexion.conectar()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+                conn.commit();
+                System.out.println("Detalle eliminado correctamente.");
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println("Error al eliminar detalle. Cambios revertidos.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error general: " + e.getMessage());
+        }
+    }
+}
+
+
+
+package dao;
+
+import database.Conexion;
+import modelos.Pedido;
+import util.Seguridad;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class PedidoDAO {
+
+    // Insertar pedido
+    public void insertar(Pedido p) {
+        if (!Seguridad.confirmarOperacion()) return;
+
+        String sql = "INSERT INTO Pedido(fecha_pedido, estado, id_cliente) VALUES (?, ?, ?)"; // *
+        try (Connection conn = Conexion.conectar()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) { // Se prepara el comando SQL que SE quiere ejecutar *
+                stmt.setString(1, p.getFechaPedido());
+                stmt.setString(2, p.getEstado());
+                stmt.setInt(3, p.getIdCliente());
+                stmt.executeUpdate();
+                conn.commit();
+                System.out.println("Pedido agregado correctamente.");
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println("Error al insertar pedido. Cambios revertidos.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error general: " + e.getMessage());
+        }
+    }
+
+    // Listar pedidos
+    public List<Pedido> listar() {
+        List<Pedido> lista = new ArrayList<>();
+        String sql = "SELECT * FROM Pedido";
+        try (Connection conn = Conexion.conectar();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Pedido p = new Pedido(
+                    rs.getInt("id_pedido"),
+                    rs.getString("fecha_pedido"),
+                    rs.getString("estado"),
+                    rs.getInt("id_cliente")
+                );
+                lista.add(p);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al listar pedidos: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    // Actualizar pedido
+    public void actualizar(Pedido p) {
+        if (!Seguridad.confirmarOperacion()) return;
+
+        String sql = "UPDATE Pedido SET fecha_pedido=?, estado=?, id_cliente=? WHERE id_pedido=?";
+        try (Connection conn = Conexion.conectar()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, p.getFechaPedido());
+                stmt.setString(2, p.getEstado());
+                stmt.setInt(3, p.getIdCliente());
+                stmt.setInt(4, p.getIdPedido());
+                stmt.executeUpdate();
+                conn.commit();
+                System.out.println("Pedido actualizado correctamente.");
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println("Error al actualizar pedido. Cambios revertidos.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error general: " + e.getMessage());
+        }
+    }
+
+    // Eliminar pedido
+    public void eliminar(int id) {
+        if (!Seguridad.confirmarOperacion()) return;
+
+        String sql = "DELETE FROM Pedido WHERE id_pedido=?";
+        try (Connection conn = Conexion.conectar()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+                conn.commit();
+                System.out.println("Pedido eliminado correctamente.");
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println("Error al eliminar pedido. Cambios revertidos.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error general: " + e.getMessage());
+        }
+    }
+}
+
+
+
+package dao;
+import database.Conexion;
+import modelos.Producto;
+import util.Seguridad;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ProductoDAO {
+
+    public void insertar(Producto p) {
+        if (!Seguridad.confirmarOperacion()) return;
+
+        String sql = "INSERT INTO Producto(nombre, descripcion, precio, stock) VALUES (?, ?, ?, ?)";
+        try (Connection conn = Conexion.conectar()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, p.getNombre());
+                stmt.setString(2, p.getDescripcion());
+                stmt.setDouble(3, p.getPrecio());
+                stmt.setInt(4, p.getStock());
+                stmt.executeUpdate();
+                conn.commit();
+                System.out.println("Producto agregado correctamente.");
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println("Error al insertar producto. Cambios revertidos.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error general: " + e.getMessage());
+        }
+    }
+
+    public List<Producto> listar() {
+        List<Producto> lista = new ArrayList<>();
+        String sql = "SELECT * FROM Producto";
+        try (Connection conn = Conexion.conectar();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Producto p = new Producto(
+                    rs.getInt("id_producto"),
+                    rs.getString("nombre"),
+                    rs.getString("descripcion"),
+                    rs.getDouble("precio"),
+                    rs.getInt("stock")
+                );
+                lista.add(p);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al listar productos: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    public void actualizar(Producto p) {
+        if (!Seguridad.confirmarOperacion()) return;
+
+        String sql = "UPDATE Producto SET nombre=?, descripcion=?, precio=?, stock=? WHERE id_producto=?";
+        try (Connection conn = Conexion.conectar()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, p.getNombre());
+                stmt.setString(2, p.getDescripcion());
+                stmt.setDouble(3, p.getPrecio());
+                stmt.setInt(4, p.getStock());
+                stmt.setInt(5, p.getId_producto());
+                stmt.executeUpdate();
+                conn.commit();
+                System.out.println("Producto actualizado correctamente.");
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println("Error al actualizar producto. Cambios revertidos.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error general: " + e.getMessage());
+        }
+    }
+
+    public void eliminar(int id) {
+        if (!Seguridad.confirmarOperacion()) return;
+
+        String sql = "DELETE FROM Producto WHERE id_producto=?";
+        try (Connection conn = Conexion.conectar()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+                conn.commit();
+                System.out.println("Producto eliminado correctamente.");
+            } catch (SQLException e) {
+                conn.rollback();
+                System.out.println("Error al eliminar producto. Cambios revertidos.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error general: " + e.getMessage());
+        }
+    }
+}
+
+
+
