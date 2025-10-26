@@ -1,0 +1,47 @@
+package main;
+
+import menu.MenuCliente;
+import menu.MenuProducto;
+import menu.MenuPedido;
+import menu.MenuDetalle;
+import java.util.Scanner;
+
+import database.inicializarBD;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        inicializarBD.crearTablas();
+
+
+        MenuCliente menuCliente = new MenuCliente();
+        MenuProducto menuProducto = new MenuProducto();
+        MenuPedido menuPedido = new MenuPedido();
+        MenuDetalle menuDetalle = new MenuDetalle();
+
+        int opcion;
+        do {
+            System.out.println("\n===== TIENDA DE MERCH STRAY KIDS =====");
+            System.out.println("1. Gestionar Clientes");
+            System.out.println("2. Gestionar Productos");
+            System.out.println("3. Gestionar Pedidos");
+            System.out.println("4. Gestionar Detalles de Pedido");
+            System.out.println("0. Salir");
+            System.out.print("Seleccione una opción: ");
+            opcion = sc.nextInt();
+
+            switch (opcion) {
+                case 1 -> menuCliente.mostrarMenu();
+                case 2 -> menuProducto.mostrarMenu();
+                case 3 -> menuPedido.mostrarMenu();
+                case 4 -> menuDetalle.mostrarMenu();
+                case 0 -> System.out.println("Saliendo del sistema...");
+                default -> System.out.println("Opción no válida");
+            }
+        } while (opcion != 0);
+
+        sc.close();
+    }
+}
+
